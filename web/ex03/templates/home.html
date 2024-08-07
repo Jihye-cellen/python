@@ -1,0 +1,71 @@
+<div>
+    <h1 class="text-center my-5">{{title}}</h1>
+    <div class="mb-3">
+        오늘의 날씨: <span id="weather"></span>
+    </div>
+    <div class="row">
+        <div class="col-6">
+            <h3>오늘의 뉴스</h3>
+            <div id="div_news"></div>
+        </div>
+        <div class="col-6">
+            <h3>오늘의 영어회화</h3>
+            <div id="div_eng"></div>
+        </div>
+    </div>
+</div>
+{%raw%}
+<script id="temp_news" type="x-handlebars-template">
+        {{#each .}}
+            <div class="mb-3"><a href="{{link}}">{{title}}</a></div>
+        {{/each}}
+    </script>
+
+<script id="temp_eng" type="x-handlebars-template">
+        {{#each english}}
+          <div>{{senetence}}</div>
+        {{/each}}
+        <hr/>
+        {{#each korean}}
+            <div>{{senetence}}</div>
+        {{/each}}
+    </script>
+{%endraw%}
+
+<script>
+    weather();
+    setInterval(() => {
+        weather();
+    }, 3000)
+    function weather() {
+        $.ajax({
+            type: "get",
+            url: "/crawl/weather",
+            success: function (data) {
+                $("#weather").html(data)
+            }
+        })
+    }
+
+    $.ajax({
+        type: "get",
+        url: "/crawl/news",
+        success: function (data) {
+            console.log(data)
+            const temp = Handlebars.compile($("#temp_news").html())
+            $("#div_news").html(temp(JSON.parse(data)))
+        }
+    })
+
+    $.ajax({
+        type: "get",
+        url: "/crawl/english",
+        success: function (data) {
+            console.log(data)
+            const temp = Handlebars.compile($("#temp_eng").html())
+            $("#div_eng").html(temp(JSON.parse(data)))
+        }
+    })
+
+
+</script>

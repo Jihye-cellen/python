@@ -7,6 +7,7 @@ import re #정규식 어떤 이름으로 지정된 것을 가져오겠다.
 for i in range(1,6):    
     url ='https://www.coupang.com/np/search?q=%EB%85%B8%ED%8A%B8%EB%B6%81&channel=user&component=&eventCategory=SRP&trcid=&traid=&sorter=scoreDesc&minPrice=&maxPrice=&priceRange=&filterType=&listSize=36&filter=&isPriceRange=false&brand=&offerCondition=&rating=0&page={}&rocketAll=false&searchIndexingToken=&backgroundColor='.format(i)
 
+#보통 데이터 무단수집 방지를 위해 user-agent string을 이용해야 하며, 한글을 설정해줘야한다. 
     headers = {
         "User-Agent" : "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36",
         "Accept-Language":"ko-KR,ko;q=0.8,en-US;q=0.5,en;q=0.3"

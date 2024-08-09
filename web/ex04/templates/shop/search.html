@@ -1,0 +1,89 @@
+<div class="my-5">
+    <h1 class="text-center mb-3">상품검색</h1>
+    <div class="row justify-content-center mb-5">
+        <form name="frm" class="col-6 col-md-4" >
+            <div class="input-group">
+                <input name="query" class="form-control" >
+                <button class="btn btn-primary">검색</button>
+            </div>
+        </form>
+    </div>
+    <div id="div_list"></div>
+</div>
+
+{%raw%}
+<script id="temp_list" type="x-handlebars-templates">
+    <table class="table table-hover">
+        <tr class="table-dark">
+            <td>No.</td>
+            <td>title</td>
+            <td>image</td>
+            <td>address</td>
+            <td>price</td>
+            <td>save</td>
+            
+        </tr>
+        {{#each .}}
+        <tr>
+            <td>{{no}}</td>
+            <td>{{title}}</td>
+            <td><img src={{image}} width="30%"></td>
+            <td>{{address}}</td>
+            <td>{{price}}</td>
+            <td><button class="btn btn-light insert" shop="{{funcShop @this}}">save</button></td>
+        </tr>   
+        {{/each}} 
+    </table>
+</script>
+<script>
+    //버튼이 object로 묶여져있어서 stringfy로 바꾸는 핸들바 함수, 중복체크를 하지 못한다.
+    Handlebars.registerHelper("funcShop", function(shop){
+        return JSON.stringify(shop) 
+    })
+</script>
+{%endraw%}
+<script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
+<script type="module">
+    import {app} from '/static/firebase.js'
+    import {getFirestore, collection, addDoc} from "https://www.gstatic.com/firebasejs/10.7.2/firebase-firestore.js"
+    const db = getFirestore(app);
+
+    let query = ""
+    $(frm).on("submit", function(e){
+        e.preventDefault()
+        query= $(frm.query).val();
+        if(query==""){
+            alert("검색어를 입력하세요")
+            $(frm.query).focus()
+            return;
+        }
+        getList();
+    })
+
+
+
+    function getList(){
+        $("#loading").show();
+        $.ajax({
+            type:"get",
+            url:"/shop/search.json",
+            data:{query},
+            success:function(data){
+                console.log(data)
+                const temp = Handlebars.compile($("#temp_list").html())
+                $("#div_list").html(temp(JSON.parse(data)))
+                $("#loading").hide();
+            }
+        })
+    }
+
+    $("#div_list").on("click", ".insert", async function(){
+        if(!confirm("선택한 상품을 등록하시겠습니까?")) return;
+        let shop = JSON.parse($(this).attr("shop")) //버튼에 있는 stirngfy로 바뀐 형태를 다시 json object로 변환
+        const date = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
+        shop = {...shop, date}
+        console.log(shop)
+        await addDoc(collection(db, 'shop_p'), shop);
+        alert("상품등록완료!")
+    })
+</script>
